@@ -97,8 +97,14 @@ jobs:
             fi
 
             # Step 5d: Create the symbolic link to the new folder (automatically replaces any existing link)
+            echo "Ensuring permissions before creating symlink..."
+            sudo chmod 755 /home/ubuntu/airfi-core
             echo "Creating the symbolic link to the new folder..."
-            sudo ln -sfn \$NEW_DIR \$APP_DIR  # Create the symbolic link to the new folder
+            sudo ln -sfn \$NEW_DIR \$APP_DIR
+
+            # Debugging: Verify the symlink creation
+            echo "Current contents of \$APP_DIR after symlink creation:"
+            ls -l \$APP_DIR
 
             # Step 5e: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
