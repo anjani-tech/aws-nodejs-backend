@@ -86,21 +86,26 @@ jobs:
             sudo mkdir -p /home/ubuntu/airfi-core/app  # Ensure the directory exists
             sudo chown -R ubuntu:ubuntu /home/ubuntu/airfi-core/app  # Ensure ownership
 
-            # Step 5c: Unzip the uploaded file directly into the app directory
-            echo "Unzipping the file..."
+            # Step 5c: Unzip the uploaded file into a new folder (without .zip extension)
+            NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
+            echo "Unzipping the file into ${NEW_DIR}..."
             if [ -f "/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}.zip" ]; then
-              sudo unzip /home/ubuntu/airfi-core-builds/airfi-core-${VERSION}.zip -d /home/ubuntu/airfi-core/app/ || { echo "Unzip failed"; exit 1; }
+              sudo unzip /home/ubuntu/airfi-core-builds/airfi-core-${VERSION}.zip -d \$NEW_DIR || { echo "Unzip failed"; exit 1; }
             else
               echo "ZIP file not found, aborting deployment."
               exit 1
             fi
 
-            # Step 5d: Stop the existing services (if any) before starting the new ones
+            # Step 5d: Create a symbolic link from the new directory to the app directory
+            echo "Creating symbolic link to the app directory..."
+            sudo ln -sfn \$NEW_DIR /home/ubuntu/airfi-core/app || { echo "Failed to create symlink"; exit 1; }
+
+            # Step 5e: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-stop.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-stop.sh
 
-            # Step 5e: Start the new services
+            # Step 5f: Start the new services
             echo "Starting services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-start.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-start.sh
