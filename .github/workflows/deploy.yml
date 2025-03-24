@@ -40,11 +40,23 @@ jobs:
             # Change the permissions to ensure write access (if needed)
             sudo chmod 755 /app
 
+            # Verify the directory structure
+            echo "Listing contents of root directory:"
+            ls -la /
+
+            # Verify '/app' directory creation
+            echo "Listing contents of '/app' directory:"
+            ls -la /app
+
             # Navigate to the '/app' directory
             cd /app || { echo "Failed to navigate to /app"; exit 1; }
 
             # Clone the repository into '/app' using the secret for the Git URL
             git clone ${{ secrets.GIT_REPO_URL }} . || { echo "Git clone failed"; exit 1; }
+
+            # Verify the contents of the '/app' directory after cloning
+            echo "Listing contents of '/app' after git clone:"
+            ls -la /app
 
             # Ensure 'package.json' exists in the '/app' directory before running npm
             if [ ! -f "/app/package.json" ]; then
