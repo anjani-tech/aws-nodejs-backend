@@ -98,7 +98,7 @@ jobs:
 
             # Step 5d: Create the symbolic link to the new folder (automatically replaces any existing link)
             echo "Creating the symbolic link to the new folder..."
-            sudo ln -s \$NEW_DIR \$APP_DIR  # Create the symbolic link to the new folder
+            sudo ln -sfn \$NEW_DIR \$APP_DIR  # Create the symbolic link to the new folder
 
             # Step 5e: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
