@@ -32,17 +32,20 @@ jobs:
               echo "'/app' directory already exists."
             fi
 
+            # Change ownership of the '/app' directory to the ubuntu user
+            sudo chown -R ubuntu:ubuntu /app
+
             # Navigate to the '/app' directory
             cd /app || { echo "Project directory does not exist"; exit 1; }
 
             # Pull the latest changes from the Git repository
             git pull origin main
 
-            # Install any new dependencies
-            npm install
+            # Install any new dependencies with sudo
+            sudo npm install
 
-            # Start or restart the application using pm2
-            pm2 restart server.js || pm2 start server.js
+            # Start or restart the application using pm2 with sudo
+            sudo pm2 restart server.js || sudo pm2 start server.js
 
             # Optionally save the pm2 process list so it restarts on reboot
             pm2 save
