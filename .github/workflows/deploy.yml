@@ -97,6 +97,7 @@ jobs:
             # Step 5d: Create a symbolic link between the new version and the app directory
             echo "Creating symbolic link..."
             sudo rm -rf /home/ubuntu/airfi-core/app
+            sudo mkdir -p /home/ubuntu/airfi-core/app  # Ensure the directory exists before creating the symbolic link
             sudo ln -s /home/ubuntu/airfi-core-builds/${VERSION}/airfi-core /home/ubuntu/airfi-core/app || { echo "Symbolic link creation failed"; exit 1; }
 
             # Step 5e: Stop the existing services (if any) before starting the new ones
@@ -112,7 +113,7 @@ jobs:
             echo "Deployment completed successfully!"
           EOF
 
-      # Step 6: Clean up the temporary folder after upload (optional but recommended)
+      # Step 6: Clean up the temporary folder
       - name: Clean up temporary folder
         run: |
           TEMP_DIR="/tmp/airfi-core-temp"
