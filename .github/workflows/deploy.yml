@@ -22,7 +22,7 @@ jobs:
 
       # Step 3: Install dependencies and create ZIP
       - name: Install dependencies and create ZIP
-        id: zip_creation # Add an ID to refer to this step's output later
+        id: zip_creation
         run: |
           echo "Installing dependencies and preparing the build..."
 
@@ -57,6 +57,14 @@ jobs:
         run: |
           VERSION=${{ steps.zip_creation.outputs.version }}  # Get the VERSION output from Step 3
           echo "Uploading ZIP file to EC2..."
+
+          # Ensure the target directory exists and is writable by checking and creating it if necessary
+          ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP_ADDRESS }} << EOF
+            # Check if the directory exists, and create it recursively if not
+            TARGET_DIR="/home/ubuntu/airfi-core-builds"
+            sudo mkdir -p \$TARGET_DIR
+            sudo chown -R ubuntu:ubuntu \$TARGET_DIR
+          EOF
 
           # Use SCP (Secure Copy Protocol) to upload the ZIP file to EC2
           scp -o StrictHostKeyChecking=no /tmp/airfi-core-temp/airfi-core-${VERSION}.zip ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/airfi-core-builds/ || { echo "SCP upload failed"; exit 1; }
