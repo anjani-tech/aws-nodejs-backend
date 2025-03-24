@@ -20,43 +20,51 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Step 3: Install dependencies and create the ZIP file
+      # Step 3: Install dependencies and create ZIP
       - name: Install dependencies and create ZIP
+        id: zip_creation # Add an ID to refer to this step's output later
         run: |
           echo "Installing dependencies and preparing the build..."
 
-          # Step 3a: Set environment variables for NPM and Node environment
+          # Set environment variables for NPM and Node environment
           export NODE_ENV=${{ secrets.NODE_ENV }}
           export NPM_TOKEN=${{ secrets.NPM_TOKEN }}
 
-          # Step 3b: Run the install.sh script, which handles npm install and dependency setup
-          echo "Running additional installation scripts..."
+          # Run the install.sh script, which handles npm install and dependency setup
           chmod +x ./scripts/install.sh
           ./scripts/install.sh || { echo "install.sh script failed"; exit 1; }
 
-          # Step 3c: Declare version only once for consistency
+          # Declare version only once for consistency
           VERSION=$(date +'%Y%m%d%H%M%S')
           ZIP_NAME="airfi-core-${VERSION}.zip"
 
-          # Step 3d: Create a zip file of the entire project directory, including node_modules
-          echo "Creating zip file: ${ZIP_NAME}"
+          # Create a zip file of the entire project directory, including node_modules
           zip -r $ZIP_NAME . || { echo "ZIP creation failed"; exit 1; }
 
-          # Step 3e: Move the ZIP file to a temporary location to upload it later
-          mv $ZIP_NAME /tmp/${ZIP_NAME}
-          echo "ZIP file ready for upload: /tmp/${ZIP_NAME}"
+          # Create the temporary directory to store the ZIP file
+          TEMP_DIR="/tmp/airfi-core-temp"
+          mkdir -p $TEMP_DIR
 
-      # Step 4: Upload the ZIP file to the EC2 instance
+          # Move the ZIP file to the temporary directory for upload
+          mv $ZIP_NAME $TEMP_DIR/${ZIP_NAME}
+          echo "ZIP file ready for upload: ${TEMP_DIR}/${ZIP_NAME}"
+
+          # Output the version so that the next step can use it
+          echo "::set-output name=version::${VERSION}"
+
+      # Step 4: Upload the ZIP file to EC2
       - name: Upload ZIP file to EC2
         run: |
+          VERSION=${{ steps.zip_creation.outputs.version }}  # Get the VERSION output from Step 3
           echo "Uploading ZIP file to EC2..."
 
-          # Step 4a: Use SCP (Secure Copy Protocol) to upload the ZIP file to EC2
-          scp -o StrictHostKeyChecking=no /tmp/airfi-core-${VERSION}.zip ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/airfi-core-builds/ || { echo "SCP upload failed"; exit 1; }
+          # Use SCP (Secure Copy Protocol) to upload the ZIP file to EC2
+          scp -o StrictHostKeyChecking=no /tmp/airfi-core-temp/airfi-core-${VERSION}.zip ubuntu@${{ secrets.EC2_IP_ADDRESS }}:/home/ubuntu/airfi-core-builds/ || { echo "SCP upload failed"; exit 1; }
 
-      # Step 5: Deploy and unpack the ZIP file on EC2
+      # Step 5: Deploy and unpack the ZIP on EC2
       - name: Deploy and unpack ZIP on EC2
         run: |
+          VERSION=${{ steps.zip_creation.outputs.version }}  # Get the VERSION output from Step 3
           echo "Deploying and unpacking ZIP file on EC2..."
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP_ADDRESS }} << EOF
             # Step 5a: Use the same VERSION passed from GitHub Actions
@@ -91,3 +99,10 @@ jobs:
 
             echo "Deployment completed successfully!"
           EOF
+
+      # Step 6: Clean up the temporary folder after upload (optional but recommended)
+      - name: Clean up temporary folder
+        run: |
+          TEMP_DIR="/tmp/airfi-core-temp"
+          rm -rf $TEMP_DIR
+          echo "Temporary folder cleaned up."
