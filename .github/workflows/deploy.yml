@@ -21,32 +21,31 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP_ADDRESS }} << 'EOF'
+            
             # Navigate to the root directory
             cd / || { echo "Failed to navigate to root directory"; exit 1; }
 
-            # Check if 'app' directory exists, if not create it
-            if [ ! -d "/app" ]; then
-              echo "'/app' directory does not exist, creating it now."
-              sudo mkdir -p /app
-            else
-              echo "'/app' directory already exists."
+            # If '/app' exists, delete it and start fresh
+            if [ -d "/app" ]; then
+              echo "'/app' directory exists, deleting it."
+              sudo rm -rf /app
             fi
 
-            # Change ownership of the '/app' directory to the ubuntu user
-            sudo chown -R ubuntu:ubuntu /app
+            # Create the '/app' directory and navigate into it
+            sudo mkdir /app
+            cd /app || { echo "Failed to navigate to /app"; exit 1; }
 
-            # Navigate to the '/app' directory
-            cd /app || { echo "Project directory does not exist"; exit 1; }
+            # Clone the repository into '/app' using the secret for the Git URL
+            git clone ${{ secrets.GIT_REPO_URL }} . || { echo "Git clone failed"; exit 1; }
 
-            # Pull the latest changes from the Git repository
-            git pull origin main
 
-            # Install any new dependencies with sudo
-            sudo npm install
+            # Install dependencies
+            npm install || { echo "npm install failed"; exit 1; }
 
-            # Start or restart the application using pm2 with sudo
-            sudo pm2 restart server.js || sudo pm2 start server.js
+            # Start or restart the app using pm2
+            pm2 restart server.js || pm2 start server.js
 
             # Optionally save the pm2 process list so it restarts on reboot
             pm2 save
+
           EOF
