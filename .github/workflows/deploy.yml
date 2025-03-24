@@ -75,18 +75,11 @@ jobs:
           VERSION=${{ steps.zip_creation.outputs.version }}  # Get the VERSION output from Step 3
           echo "Deploying and unpacking ZIP file on EC2..."
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP_ADDRESS }} << EOF
-            # Ensure unzip is installed on the EC2 instance
-            sudo apt-get update -y
-            sudo apt-get install -y unzip
 
             # Step 5a: Use the same VERSION passed from GitHub Actions
             VERSION=${VERSION}
 
-            # Step 5b: Ensure the app directory is writable and exists
-            sudo mkdir -p /home/ubuntu/airfi-core/app  # Ensure the directory exists
-            sudo chown -R ubuntu:ubuntu /home/ubuntu/airfi-core/app  # Ensure ownership
-
-            # Step 5c: Unzip the uploaded file into a new folder (without .zip extension)
+            # Step 5b: Create a new directory to unzip the content
             NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
             echo "Unzipping the file into ${NEW_DIR}..."
             if [ -f "/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}.zip" ]; then
@@ -96,16 +89,17 @@ jobs:
               exit 1
             fi
 
-            # Step 5d: Create a symbolic link from the new directory to the app directory
-            echo "Creating symbolic link to the app directory..."
-            sudo ln -sfn \$NEW_DIR /home/ubuntu/airfi-core/app || { echo "Failed to create symlink"; exit 1; }
+            # Step 5c: Remove the old symbolic link (if exists) and create a new one
+            echo "Removing old symbolic link and creating a new one..."
+            sudo rm -f /home/ubuntu/airfi-core/app  # Remove the existing symbolic link or directory
+            sudo ln -sfn \$NEW_DIR /home/ubuntu/airfi-core/app  # Create the symbolic link to the new folder
 
-            # Step 5e: Stop the existing services (if any) before starting the new ones
+            # Step 5d: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-stop.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-stop.sh
 
-            # Step 5f: Start the new services
+            # Step 5e: Start the new services
             echo "Starting services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-start.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-start.sh
