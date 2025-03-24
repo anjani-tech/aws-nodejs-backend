@@ -84,8 +84,7 @@ jobs:
 
             echo "Ensuring directories exist..."
             sudo mkdir -p \$AIRFI_CORE_DIR  # Ensure 'airfi-core' directory exists
-            sudo mkdir -p \$APP_DIR  # Ensure 'app' directory exists
-            sudo chown -R ubuntu:ubuntu \$AIRFI_CORE_DIR  # Ensure ownership of 'airfi-core'
+            sudo mkdir -p \$APP_DIR  # Ensure 'app' directory exists (this might be redundant but ensures we have 'app')
 
             # Step 5c: Create a new directory to unzip the content
             NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
@@ -98,16 +97,21 @@ jobs:
             fi
 
             # Step 5d: Remove the old symbolic link (if exists) and create a new one
-            echo "Removing old symbolic link and creating a new one..."
+            echo "Removing old symbolic link (if any) and creating a new one..."
             sudo rm -f \$APP_DIR  # Remove the existing symbolic link or directory
+
+            # Step 5e: Ensure app folder exists (this is important to prevent errors in symlink creation)
+            sudo mkdir -p \$APP_DIR  # Create the app directory if it doesn't exist
+
+            # Step 5f: Create the symbolic link to the new folder
             sudo ln -sfn \$NEW_DIR \$APP_DIR  # Create the symbolic link to the new folder
 
-            # Step 5e: Stop the existing services (if any) before starting the new ones
+            # Step 5g: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-stop.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-stop.sh
 
-            # Step 5f: Start the new services
+            # Step 5h: Start the new services
             echo "Starting services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-start.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-start.sh
