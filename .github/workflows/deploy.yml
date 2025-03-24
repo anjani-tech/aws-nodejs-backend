@@ -75,6 +75,10 @@ jobs:
           VERSION=${{ steps.zip_creation.outputs.version }}  # Get the VERSION output from Step 3
           echo "Deploying and unpacking ZIP file on EC2..."
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP_ADDRESS }} << EOF
+            # Ensure unzip is installed on the EC2 instance
+            sudo apt-get update -y
+            sudo apt-get install -y unzip
+
             # Step 5a: Use the same VERSION passed from GitHub Actions
             VERSION=${VERSION}
 
