@@ -114,7 +114,8 @@ jobs:
 
             # Verify the symlink creation
             echo "Current contents of \$APP_DIR after symlink creation:"
-            ls -l \$APP_DIR
+            echo "App directory contents..."
+            ls -al \$APP_DIR
 
             # Step 5h: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
