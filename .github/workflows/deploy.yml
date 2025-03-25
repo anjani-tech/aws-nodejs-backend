@@ -83,6 +83,7 @@ jobs:
             APP_DIR="${AIRFI_CORE_DIR}/app"
 
             echo "Ensuring directories have correct ownership and permissions..."
+            mkdir -p \$AIRFI_CORE_DIR
             sudo chown -R ubuntu:ubuntu /home/ubuntu/airfi-core /home/ubuntu/airfi-core-builds
             sudo chmod -R 755 /home/ubuntu/airfi-core /home/ubuntu/airfi-core-builds
 
