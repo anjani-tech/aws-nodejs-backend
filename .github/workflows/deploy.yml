@@ -78,13 +78,14 @@ jobs:
             # Step 5a: Use the same VERSION passed from GitHub Actions
             VERSION=${VERSION}
 
-            # Step 5b: Ensure the 'airfi-core' and 'app' directories exist
+            # Step 5b: Ensure the 'airfi-core'
             AIRFI_CORE_DIR="/home/ubuntu/airfi-core"
             APP_DIR="${AIRFI_CORE_DIR}/app"
 
-            echo "Ensuring directories exist..."
-            mkdir -p \$AIRFI_CORE_DIR
-            
+            echo "Ensuring directories have correct ownership and permissions..."
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/airfi-core /home/ubuntu/airfi-core-builds
+            sudo chmod -R 755 /home/ubuntu/airfi-core /home/ubuntu/airfi-core-builds
+
             # Step 5c: Create a new directory to unzip the content
             NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
             echo "Unzipping the file into ${NEW_DIR}..."
@@ -100,7 +101,8 @@ jobs:
             sudo chown -R ubuntu:ubuntu \$AIRFI_CORE_DIR
 
             # Step 5e: Create the symbolic link to the new folder, pointing directly to the versioned folder
-            ln -sfn /home/ubuntu/airfi-core-builds/airfi-core-${VERSION} \$APP_DIR
+            echo "Creating symlink for the new version..."
+            sudo ln -sfn /home/ubuntu/airfi-core-builds/airfi-core-${VERSION} \$APP_DIR
 
             # Verify the symlink creation
             echo "Current contents of \$APP_DIR after symlink creation:"
