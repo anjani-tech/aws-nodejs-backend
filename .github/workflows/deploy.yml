@@ -62,7 +62,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP_ADDRESS }} << EOF
             # Check if the directory exists, and create it recursively if not
             TARGET_DIR="/home/ubuntu/airfi-core-builds"
-            sudo mkdir -p \$TARGET_DIR
+            mkdir -p \$TARGET_DIR
             sudo chown -R ubuntu:ubuntu \$TARGET_DIR
           EOF
 
@@ -83,13 +83,13 @@ jobs:
             APP_DIR="${AIRFI_CORE_DIR}/app"
 
             echo "Ensuring directories exist..."
-            sudo mkdir -p \$AIRFI_CORE_DIR  # Ensure 'airfi-core' directory exists
+            mkdir -p \$AIRFI_CORE_DIR  # Ensure 'airfi-core' directory exists
 
             # Step 5c: Create a new directory to unzip the content
             NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
             echo "Unzipping the file into ${NEW_DIR}..."
             if [ -f "/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}.zip" ]; then
-              sudo unzip /home/ubuntu/airfi-core-builds/airfi-core-${VERSION}.zip -d \$NEW_DIR || { echo "Unzip failed"; exit 1; }
+              unzip /home/ubuntu/airfi-core-builds/airfi-core-${VERSION}.zip -d \$NEW_DIR || { echo "Unzip failed"; exit 1; }
             else
               echo "ZIP file not found, aborting deployment."
               exit 1
@@ -101,7 +101,7 @@ jobs:
 
             # Step 5d: Create the symbolic link to the new folder (automatically replaces any existing link)
             echo "Ensuring permissions before creating symlink..."
-            sudo ln -sfn \$NEW_DIR \$APP_DIR
+            ln -sfn \$NEW_DIR \$APP_DIR
 
             # Verify the symlink creation
             echo "Current contents of \$APP_DIR after symlink creation:"
