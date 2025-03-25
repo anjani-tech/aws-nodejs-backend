@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
 
-echo "Going to stop airfi-core service."
+echo "Going to stop airfi-core service modified!"
 
