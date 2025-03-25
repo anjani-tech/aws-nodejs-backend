@@ -99,23 +99,29 @@ jobs:
             echo "Contents of \$NEW_DIR:"
             ls -l \$NEW_DIR
 
-            # Step 5d: Clean up old symlink (if any) and ensure proper ownership
-            rm -f \$APP_DIR/airfi-core
+            # Step 5d: Clean up old symlinks (if any)
+            echo "Cleaning up old symlinks..."
+            find /home/ubuntu/airfi-core-builds/ -type l -exec rm -f {} \;
+
+            # Step 5e: Ensure proper ownership of directories
             sudo chown -R ubuntu:ubuntu \$AIRFI_CORE_DIR
 
-            # Step 5e: Create the symbolic link to the new folder (automatically replaces any existing link)
-            ln -sfn \$NEW_DIR \$APP_DIR/airfi-core
+            # Step 5f: Remove any old symlink in the app directory
+            rm -f \$APP_DIR
+
+            # Step 5g: Create the symbolic link to the new folder (automatically replaces any existing link)
+            ln -sfn \$NEW_DIR \$APP_DIR
 
             # Verify the symlink creation
             echo "Current contents of \$APP_DIR after symlink creation:"
             ls -l \$APP_DIR
 
-            # Step 5f: Stop the existing services (if any) before starting the new ones
+            # Step 5h: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-stop.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-stop.sh
 
-            # Step 5g: Start the new services
+            # Step 5i: Start the new services
             echo "Starting services..."
             sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-start.sh
             sudo /home/ubuntu/airfi-core/app/scripts/application-start.sh
