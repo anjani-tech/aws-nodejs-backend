@@ -108,13 +108,21 @@ jobs:
 
             # Step 5f: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
-            sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-stop.sh
-            sudo /home/ubuntu/airfi-core/app/scripts/application-stop.sh
+            if [ -f "/home/ubuntu/airfi-core/app/scripts/application-stop.sh" ]; then
+              sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-stop.sh
+              sudo /home/ubuntu/airfi-core/app/scripts/application-stop.sh
+            else
+              echo "application-stop.sh not found."
+            fi
 
             # Step 5g: Start the new services
             echo "Starting services..."
-            sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-start.sh
-            sudo /home/ubuntu/airfi-core/app/scripts/application-start.sh
+            if [ -f "/home/ubuntu/airfi-core/app/scripts/application-start.sh" ]; then
+              sudo chmod +x /home/ubuntu/airfi-core/app/scripts/application-start.sh
+              sudo /home/ubuntu/airfi-core/app/scripts/application-start.sh
+            else
+              echo "application-start.sh not found."
+            fi
 
             echo "Deployment completed successfully!"
           EOF
