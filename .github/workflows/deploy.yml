@@ -98,8 +98,8 @@ jobs:
             fi
 
             # Step 5d: Clean up old symlink (if any) and ensure proper ownership
-            rm -f \$APP_DIR
             sudo chown -R ubuntu:ubuntu \$AIRFI_CORE_DIR
+            rm -f \$APP_DIR
 
             # Step 5e: Create the symbolic link to the new folder, pointing directly to the versioned folder
             echo "Creating symlink for the new version..."
