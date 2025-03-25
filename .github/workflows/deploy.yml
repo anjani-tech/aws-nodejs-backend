@@ -86,6 +86,11 @@ jobs:
             sudo mkdir -p \$AIRFI_CORE_DIR  # Ensure 'airfi-core' directory exists
             sudo mkdir -p \$APP_DIR  # Ensure 'app' directory exists before symlink creation
 
+            # Debugging: Verify directory existence
+            echo "Listing contents of \$AIRFI_CORE_DIR and \$APP_DIR:"
+            ls -l \$AIRFI_CORE_DIR
+            ls -l \$APP_DIR
+
             # Step 5c: Create a new directory to unzip the content
             NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
             echo "Unzipping the file into ${NEW_DIR}..."
@@ -96,13 +101,15 @@ jobs:
               exit 1
             fi
 
+            # Debugging: Check contents of the unzipped directory
+            echo "Contents of \$NEW_DIR:"
+            ls -l \$NEW_DIR
+
             # Step 5d: Create the symbolic link to the new folder (automatically replaces any existing link)
             echo "Ensuring permissions before creating symlink..."
-            sudo chmod 755 /home/ubuntu/airfi-core
-            echo "Creating the symbolic link to the new folder..."
             sudo ln -sfn \$NEW_DIR \$APP_DIR
 
-            # Debugging: Verify the symlink creation
+            # Verify the symlink creation
             echo "Current contents of \$APP_DIR after symlink creation:"
             ls -l \$APP_DIR
 
