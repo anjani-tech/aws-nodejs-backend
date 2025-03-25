@@ -84,12 +84,6 @@ jobs:
 
             echo "Ensuring directories exist..."
             sudo mkdir -p \$AIRFI_CORE_DIR  # Ensure 'airfi-core' directory exists
-            sudo mkdir -p \$APP_DIR  # Ensure 'app' directory exists before symlink creation
-
-            # Debugging: Verify directory existence
-            echo "Listing contents of \$AIRFI_CORE_DIR and \$APP_DIR:"
-            ls -l \$AIRFI_CORE_DIR
-            ls -l \$APP_DIR
 
             # Step 5c: Create a new directory to unzip the content
             NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
