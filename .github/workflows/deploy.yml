@@ -97,18 +97,6 @@ jobs:
               exit 1
             fi
 
-            # Step 5d: Clean up old symlink (if any) and ensure proper ownership
-            sudo chown -R ubuntu:ubuntu \$AIRFI_CORE_DIR
-            rm -f /home/ubuntu/airfi-core/app
-
-            # Step 5e: Create the symbolic link to the new folder, pointing directly to the versioned folder
-            echo "Creating symlink for the new version..."
-            sudo ln -sfn /home/ubuntu/airfi-core-builds/airfi-core-${VERSION} /home/ubuntu/airfi-core/app
-
-            # Verify the symlink creation
-            echo "Current contents of /home/ubuntu/airfi-core/app after symlink creation:"
-            ls -l /home/ubuntu/airfi-core/app
-
             # Step 5f: Stop the existing services (if any) before starting the new ones
             echo "Stopping services..."
             if [ -f "/home/ubuntu/airfi-core/app/scripts/application-stop.sh" ]; then
@@ -117,6 +105,14 @@ jobs:
             else
               echo "application-stop.sh not found."
             fi
+
+            # Step 5d: Clean up old symlink (if any) and ensure proper ownership
+            sudo chown -R ubuntu:ubuntu \$AIRFI_CORE_DIR
+            rm -f /home/ubuntu/airfi-core/app
+
+            # Step 5e: Create the symbolic link to the new folder, pointing directly to the versioned folder
+            echo "Creating symlink for the new version..."
+            sudo ln -sfn /home/ubuntu/airfi-core-builds/airfi-core-${VERSION} /home/ubuntu/airfi-core/app
 
             # Step 5g: Start the new services
             echo "Starting services..."
