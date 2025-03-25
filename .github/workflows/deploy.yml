@@ -83,8 +83,8 @@ jobs:
             APP_DIR="${AIRFI_CORE_DIR}/app"
 
             echo "Ensuring directories exist..."
-            mkdir -p \$AIRFI_CORE_DIR  # Ensure 'airfi-core' directory exists
-
+            mkdir -p \$AIRFI_CORE_DIR
+            
             # Step 5c: Create a new directory to unzip the content
             NEW_DIR="/home/ubuntu/airfi-core-builds/airfi-core-${VERSION}"
             echo "Unzipping the file into ${NEW_DIR}..."
@@ -94,10 +94,6 @@ jobs:
               echo "ZIP file not found, aborting deployment."
               exit 1
             fi
-
-            # Debugging: Check contents of the unzipped directory
-            echo "Contents of \$NEW_DIR:"
-            ls -l \$NEW_DIR
 
             # Step 5d: Clean up old symlink (if any) and ensure proper ownership
             rm -f \$APP_DIR
